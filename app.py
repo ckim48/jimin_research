@@ -12,9 +12,21 @@ app.secret_key = "change-this-to-a-random-secret"
 DB_PATH = "static/research.db"
 GROUPA_CSV_PATH = "groupa.csv"
 
-@app.route('/result')
+@app.route('/result', methods = ["GET", "POST"])
 def result():
+    if request.method == "POST":
+        q1 = request.form.get("question1")
+        q2 = request.form.get("question2")
+        q3 = request.form.get("question3")
+        q4 = request.form.get("question4")
+        q5 = request.form.get("question5")
+
+        return redirect(url_for("completed"))
     return render_template('result.html')
+
+@app.route("/completed", methods = ["GET"])
+def completed():
+    return render_template('completed.html')
 # -------------------------
 # DB helpers / setup
 # -------------------------
