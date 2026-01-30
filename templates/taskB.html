@@ -1,10 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+  <meta charset="UTF-8">
+  <title>Task B</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
+  <style>
+    .equation-card{border-radius:18px}
+    .builder{background:rgba(0,0,0,.03);border-radius:14px;padding:12px}
+    .builder-row{display:flex;gap:12px;align-items:center;padding:6px 0}
+    .builder .label{width:90px;font-size:12px;color:#6c757d}
+    .builder .expr{font-weight:700;letter-spacing:.2px}
+    .card-row{display:flex;flex-wrap:wrap;gap:10px}
+    .pick-card{
+      user-select:none;
+      padding:10px 12px;
+      border:1px solid rgba(0,0,0,.12);
+      border-radius:14px;
+      background:#fff;
+      min-width:56px;
+      text-align:center;
+      font-weight:700;
+      box-shadow:0 8px 22px rgba(0,0,0,.06);
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease;
+      cursor:pointer;
+    }
+    .pick-card:active{transform:translateY(1px)}
+    #hintText{min-height:18px}
+
+    .meta-row{
+      display:flex;flex-wrap:wrap;gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:14px;
+      background:rgba(0,0,0,.02);
+    }
+    .meta-row .pill{
+      display:inline-flex;gap:6px;align-items:baseline;
+      padding:6px 10px;border-radius:999px;
+      background:#fff;border:1px solid rgba(0,0,0,.08);
+      font-size:13px;
+    }
+    .meta-row .k{color:#6c757d;font-size:12px}
+    .meta-row .v{font-weight:800}
+  </style>
+</head>
+
+<body>
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-1">Task B</h4>
+      <div class="text-muted">Question <span id="qHeader">0/0</span></div>
+    </div>
+    <div class="text-end">
+      <div class="fs-5">Time: <span id="timeElapsed">0</span>s</div>
+    </div>
+  </div>
+
+  <div class="card mb-3 equation-card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+          <h5 class="mb-1">Build an equation to match the target</h5>
+          <div class="text-muted small">Click cards to create an expression. Duplicates are allowed.</div>
+        </div>
+        <div class="text-muted small text-end">
+          Mouse-only version (no pose control)
+        </div>
+      </div>
+
+      <div class="meta-row mt-3">
+        <span class="badge bg-secondary" id="category">-</span>
+
+        <span class="pill">
+          <span class="k">Numbers</span>
+          <span class="v" id="numbersText">-</span>
+        </span>
+
+        <span class="pill">
+          <span class="k">Operators</span>
+          <span class="v" id="opsText">-</span>
+        </span>
+
+        <span class="pill ms-auto">
+          <span class="k">Target</span>
+          <span class="v" id="targetText">-</span>
+        </span>
+      </div>
+
+      <div class="builder mt-3">
+        <div class="builder-row">
+          <div class="label">Expression</div>
+          <div class="expr" id="exprText">—</div>
+        </div>
+        <div class="builder-row">
+          <div class="label">Result</div>
+          <div class="expr"><span id="exprValue">—</span></div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="mb-2 text-muted small">Numbers</div>
+        <div id="numRow" class="card-row"></div>
+      </div>
+
+      <div class="mt-3">
+        <div class="mb-2 text-muted small">Operators</div>
+        <div id="opRow" class="card-row"></div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2 flex-wrap">
+        <button class="btn btn-outline-secondary btn-sm" id="btnUndo" type="button">Undo</button>
+        <button class="btn btn-outline-secondary btn-sm" id="btnClear" type="button">Clear</button>
+        <button class="btn btn-dark btn-sm ms-auto" id="btnSubmit" type="button">Submit</button>
+      </div>
+
+      <div class="mt-2 small text-muted" id="hintText"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+  let qState = null;
+
+  let startedAt = 0;
+  let timerId = null;
+  let elapsed = 0;
+
+  const qHeader = document.getElementById('qHeader');
+  const category = document.getElementById('category');
+  const numbersText = document.getElementById('numbersText');
+  const opsText = document.getElementById('opsText');
+  const targetText = document.getElementById('targetText');
+  const timeElapsed = document.getElementById('timeElapsed');
+
+  const exprText = document.getElementById('exprText');
+  const exprValue = document.getElementById('exprValue');
+  const numRow = document.getElementById('numRow');
+  const opRow = document.getElementById('opRow');
+  const btnUndo = document.getElementById('btnUndo');
+  const btnClear = document.getElementById('btnClear');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const hintText = document.getElementById('hintText');
+
+  let numbers = [];
+  let ops = ["+", "-", "×"];
+  let tokens = [];
+  let lastComputed = null;
+
+  function parseNumbersText(s){
+    return String(s).split(/[^0-9.-]+/).filter(x => x.length).map(Number);
+  }
+
+  function parseOpsText(s){
+    const raw = String(s).replaceAll("*","×");
+    const arr = raw.split(/[^+\-×/%\/\/^]+/).filter(x => x.length);
+    const allowed = new Set(["+", "-", "×", "/", "//", "%", "^"]);
+    const out = arr.filter(x => allowed.has(x));
+    return out.length ? out : ["+", "-", "×"];
+  }
+
+  function prettyExpr(){
+    if (!tokens.length) return "—";
+    return tokens.map(t => t.value).join(" ");
+  }
+
+
+  function safeEvalLeftToRight(){
+    if (!tokens.length) return null;
+    if (tokens[0].type !== "num") return null;
+    if (tokens.length % 2 === 0) return null;
+
+    let acc = Number(tokens[0].value);
+    if (!Number.isFinite(acc)) return null;
+
+    for (let i = 1; i < tokens.length; i += 2){
+      const op = tokens[i]?.value;
+      const b = Number(tokens[i+1]?.value);
+      if (!Number.isFinite(b)) return null;
+
+      if (op === "+") acc = acc + b;
+      else if (op === "-") acc = acc - b;
+      else if (op === "×") acc = acc * b;
+      else return null;
+    }
+    return acc;
+  }
+
+  function refreshBuilder(){
+    exprText.textContent = prettyExpr();
+    const v = safeEvalLeftToRight();
+    lastComputed = v;
+    exprValue.textContent = (v === null ? "—" : String(v));
+
+    if (!tokens.length){
+      hintText.textContent = "Click a number to start.";
+    } else if (tokens[tokens.length - 1].type === "op"){
+      hintText.textContent = "Click a number to continue.";
+    } else {
+      hintText.textContent = "Click an operator to continue, or press Submit.";
+    }
+  }
+
+  function renderCards(){
+    numRow.innerHTML = "";
+    opRow.innerHTML = "";
+
+    numbers.forEach((n, i) => {
+      const div = document.createElement("button");
+      div.type = "button";
+      div.className = "pick-card";
+      div.dataset.idx = String(i);
+      div.textContent = String(n);
+      div.addEventListener("click", () => pickNumber(i));
+      numRow.appendChild(div);
+    });
+
+    ops.forEach((op, i) => {
+      const div = document.createElement("button");
+      div.type = "button";
+      div.className = "pick-card op";
+      div.dataset.idx = String(i);
+      div.textContent = op;
+      div.addEventListener("click", () => pickOp(op));
+      opRow.appendChild(div);
+    });
+  }
+
+  function pickNumber(i){
+    // enforce alternating: num, op, num, op...
+    if (tokens.length && tokens[tokens.length - 1].type === "num") return;
+    tokens.push({type:"num", value:String(numbers[i])});
+    refreshBuilder();
+  }
+
+  function pickOp(op){
+    if (!tokens.length) return;
+    if (tokens[tokens.length - 1].type === "op") return;
+    tokens.push({type:"op", value:op});
+    refreshBuilder();
+  }
+
+  btnUndo.addEventListener("click", () => {
+    if (!tokens.length) return;
+    tokens.pop();
+    refreshBuilder();
+  });
+
+  btnClear.addEventListener("click", () => {
+    tokens = [];
+    refreshBuilder();
+  });
+
+  btnSubmit.addEventListener("click", () => {
+    submitAnswer("MANUAL_MOUSE");
+  });
+
+  function startTimerIncreasing(){
+    if (timerId) clearInterval(timerId);
+    startedAt = performance.now();
+    elapsed = 0;
+    timeElapsed.innerText = "0";
+
+    timerId = setInterval(() => {
+      elapsed = Math.floor((performance.now() - startedAt) / 1000);
+      timeElapsed.innerText = String(elapsed);
+    }, 200);
+  }
+
+  async function loadNext(){
+    hintText.textContent = "";
+
+    const res = await fetch("/api/taskA/next");
+    qState = await res.json();
+
+    if (qState.done){
+      document.body.innerHTML = "<div class='container py-5'><h3>Done.</h3></div>";
+      return;
+    }
+
+    qHeader.innerText = `${qState.q_index + 1} / ${qState.total}`;
+    category.innerText = qState.category ?? "-";
+    numbersText.innerText = qState.numbers_text ?? "-";
+    opsText.innerText = qState.ops_text ?? "-";
+    targetText.innerText = qState.target ?? "-";
+
+    numbers = parseNumbersText(qState.numbers_text ?? "");
+    ops = parseOpsText(qState.ops_text ?? "");
+
+    tokens = [];
+    renderCards();
+    refreshBuilder();
+    startTimerIncreasing();
+  }
+
+  async function submitAnswer(chosen){
+    if (btnSubmit.disabled) return;
+    btnSubmit.disabled = true;
+
+    if (timerId) clearInterval(timerId);
+
+    const rt_ms = Math.max(0, Math.round(performance.now() - startedAt));
+    const expr_str = prettyExpr();
+    const result_val = lastComputed;
+
+    await fetch("/api/taskA/submit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        q_index: qState.q_index,
+        chosen,
+        rt_ms,
+        expr: expr_str,
+        result: result_val,
+        target: qState.target,
+        numbers_seen: qState.numbers_text,
+        ops_seen: qState.ops_text
+      })
+    });
+
+    btnSubmit.disabled = false;
+    await loadNext();
+  }
+
+  loadNext();
+</script>
 </body>
 </html>

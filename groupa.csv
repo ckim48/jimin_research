@@ -1,0 +1,14 @@
+category,Numbers,Operations,Target,Answer
+warmup,"12, 6, 3","/, +",5,
+warmup,"15, 5, 2","//, -",2,
+warmup,"20, 4, 3, 2","/, +, -",18,
+Test Questions,"14, 5, 3","%, +",9,"14 % 3 + 5"
+Test Questions,"20, 6, 4, 5","*, -, /",20,"6*4 - (20/5)"
+Test Questions,"5, 4, 3, 2","^, //, +",19,"4 ^ (5//2) + 3"
+Test Questions,"10, 6, 3, 4","%, +, /",4,"(10 % 4) + (6/3)"
+Test Questions,"14, 2, 3, 7","//, ^, -",6,"2^3 - 14/7"
+Test Questions,"18, 5, 4, 2","*, -, //",5,
+Test Questions,"30, 8, 3, 5","/, %, +",8,
+Test Questions,"2, 5, 20, 4","-, +, ^",16,
+Test Questions,"3, 7, 15, 2","/, +, -",4,"7 - 15 / (2 + 3)"
+Test Questions,"5, 3, 10, 12","//, %, -",1,"(12//5) - (10%3)"

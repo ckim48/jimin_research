@@ -1,310 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <title>Task A</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .equation-card{border-radius:18px}
+    .builder{background:rgba(0,0,0,.03);border-radius:14px;padding:12px}
+    .builder-row{display:flex;gap:12px;align-items:center;padding:6px 0}
+    .builder .label{width:90px;font-size:12px;color:#6c757d}
+    .builder .expr{font-weight:700;letter-spacing:.2px}
+    .card-row{display:flex;flex-wrap:wrap;gap:10px}
+    .pick-card{
+      user-select:none;
+      padding:10px 12px;
+      border:1px solid rgba(0,0,0,.12);
+      border-radius:14px;
+      background:#fff;
+      min-width:56px;
+      text-align:center;
+      font-weight:700;
+      box-shadow:0 8px 22px rgba(0,0,0,.06);
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease;
+    }
+    .pick-card.active{outline:2px solid rgba(0,0,0,.65);transform:translateY(-1px)}
+    .pick-card.op{font-weight:800}
+    #video{width:100%;transform:scaleX(-1);border-radius:14px;background:#000}
+    #canvas{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,.1)}
+
+    .meta-row{
+      display:flex;flex-wrap:wrap;gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:14px;
+      background:rgba(0,0,0,.02);
+    }
+    .meta-row .pill{
+      display:inline-flex;gap:6px;align-items:baseline;
+      padding:6px 10px;border-radius:999px;
+      background:#fff;border:1px solid rgba(0,0,0,.08);
+      font-size:13px;
+    }
+    .meta-row .k{color:#6c757d;font-size:12px}
+    .meta-row .v{font-weight:800}
+  </style>
 </head>
+
 <body>
-    <div class="container">
+<div class="container py-4">
 
-        <div class="row">
-            <div class="col-md-4">
-                <div id="numA" class="card">
-                    12
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div id="numB" class="card">
-                    6
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div id="numC" class="card">
-                    3
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div id="opA" class="card">
-                    /
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div id="opB" class="card">
-                    +
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div>
-                <p>Target: <span id="target">0</span></p>
-            </div>
-
-            <div>
-                <span class="badge text-bg-light" id="eqN1"> (?) </span>
-                <span class="badge text-bg-light" id="eqO1"> ? </span>
-                <span class="badge text-bg-light" id="eqN2"> (?) </span>
-                <span class="badge text-bg-light" id="eqO2"> ? </span>
-                <span class="badge text-bg-light" id="eqN3"> (?) </span>
-
-                <span class="badge text-bg-light" >=</span>
-                <span class="badge text-bg-light" id="answer"> (?) </span>
-            </div>
-        </div>
-
-
-
-        <div class="row">
-            <div class="col-lg-12">
-                <div>
-                    <h1>Raise hands to answer</h1>
-                    <p>Left Hand = A, Right Hand = B, Both Hands = C</p>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="question-header">
-                            <h2>Questions <span id="qHeader"> 0 / 0 </span></h2>
-                        </div>
-                        <div class="question-main">
-                            <h5 id="qText">Loading...</h5>
-                            <div>
-                                <div>A. <span id="optA">2</span></div>
-                                <div>B. <span id="optB">3</span></div>
-                                <div>C. <span id="optC">7</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12">
-                <video id="video" autoplay playsinline style="transform: scaleX(-1);"></video>
-                <canvas id="canvas"></canvas>
-                <p id="result">Waiting for camera...</p>
-            </div>
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-1">Task A</h4>
+      <div class="text-muted">Question <span id="qHeader">0/0</span></div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <div class="text-end">
+      <div class="fs-5">Time: <span id="timeLeft">0</span>s</div>
+    </div>
+  </div>
+
+  <div class="card mb-3 equation-card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+          <h5 class="mb-1">Build an equation to match the target</h5>
+          <div class="text-muted small">Use the cards to create an expression.</div>
+        </div>
+        <div class="text-muted small text-end">
+          Controls: Right hand = move right, Left hand = move down (switch row), Both = select
+        </div>
+      </div>
+
+      <div class="meta-row mt-3">
+        <span class="badge bg-secondary" id="category">-</span>
+
+        <span class="pill">
+          <span class="k">Numbers</span>
+          <span class="v" id="numbersText">-</span>
+        </span>
+
+        <span class="pill">
+          <span class="k">Operators</span>
+          <span class="v" id="opsText">-</span>
+        </span>
+
+        <span class="pill ms-auto">
+          <span class="k">Target</span>
+          <span class="v" id="targetText">-</span>
+        </span>
+      </div>
+
+      <div class="builder mt-3">
+        <div class="builder-row">
+          <div class="label">Expression</div>
+          <div class="expr" id="exprText">—</div>
+        </div>
+        <div class="builder-row">
+          <div class="label">Result</div>
+          <div class="expr"><span id="exprValue">—</span></div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="mb-2 text-muted small">Numbers</div>
+        <div id="numRow" class="card-row"></div>
+      </div>
+
+      <div class="mt-3">
+        <div class="mb-2 text-muted small">Operators</div>
+        <div id="opRow" class="card-row"></div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2 flex-wrap">
+        <button class="btn btn-outline-secondary btn-sm" id="btnUndo" type="button">Undo</button>
+        <button class="btn btn-outline-secondary btn-sm" id="btnClear" type="button">Clear</button>
+        <button class="btn btn-dark btn-sm ms-auto" id="btnSubmit" type="button">Submit</button>
+      </div>
+
+      <div class="mt-2 small text-muted" id="hintText"></div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <video id="video" autoplay playsinline></video>
+    </div>
+    <div class="col-lg-6">
+      <canvas id="canvas"></canvas>
+      <p id="poseStatus" class="mt-2">Waiting for camera...</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
-    <script>
-        const questions = [
-            {target: 5, numbers: [12,6,3], operators: ["/","+"] },
-            {target: 2, numbers: [15,5,2], operators: ["//","-"] },
-            {target: 18, numbers: [20,4,3,2], operators: ["/","+","-"] },
-        ]
-        const score = 0;
-        let rIndx = 0;
-
-        let stepIndex = 0;
-        const picked = {n: [], o:[]};
-        const numA = document.getElementById('numA');
-        const numB = document.getElementById('numB');
-        const numC = document.getElementById('numC');
-        const opA = document.getElementById('opA');
-        const opB = document.getElementById('opB');
-
-        const target = document.getElementById('target');
-
-        const eqN1 = document.getElementById('eqN1');
-        const eqN2 = document.getElementById('eqN2');
-        const eqN3 = document.getElementById('eqN3');
-        const eqO1 = document.getElementById('eqO1');
-        const eqO2 = document.getElementById('eqO2');
-        function calculate(a, op, b){
-            if (op =="+") return a + b;
-            if (op =="-") return a - b;
-            if (op =="*") return a * b;
-            if (op =="/") return a / b;
-            if (op =="//") return Math.floor(a / b);
-        }
-        function compute (n1, o1, n2, o2, n3){
-            const t = calculate(n1, o1, n2);
-            return calculate(t,o2,n3);
-        }
-        function render(){
-            const r = questions[rIndx];
-            target.innerText = r.target; // change the text in html for target
-            numA.innerText = r.numbers[0];
-            numB.innerText = r.numbers[1];
-            numC.innerText = r.numbers[2];
-            opA.innerText = r.operators[0];
-            opB.innerText = r.operators[1];
-
-            resetRound();
-        }
-
-
-        function updateEquation(){
-            eqN1.innerText = `( ${picked.n[0] ?? "?"} )`;
-            eqO1.innerText = `(${picked.o[0] ?? "?"} )`;
-            eqN2.innerText = `(${picked.n[1] ?? "?"} )`;
-            eqO2.innerText = `(${picked.o[1] ?? "?"} )`;
-            eqN3.innerText = `(${picked.n[2] ?? "?"} )`;
-
-            if (picked.n.length == 3 && picked.nolength == 2){
-                const val = compute(picked.n[0],picked.o[0],picked.n[1],picked.o[0],picked.n[2] );
-                r = questions[rIndx];
-                if (val == r.target){
-                    score += 1;
-                }else{
-                    console.log("Wrong");
-                }
-            }
-        }
-
-        function resetRound(){
-            stepIndex = 0;
-            picked.n = [];
-            picked.o = [];
-            updateEquation();
-        }
-
-        function pick(choice){
-            const r = questions[rIndx];
-            if (stepIndex % 2 == 0){
-            const map = { A: 0, B:1, C:2};
-            const i = map[choice];
-            const val = r.numbers[i];
-            picked.n.push(val);
-            stepIndex++;
-            updateEquation();
-             return
-             }else{
-                console.log("op");
-            stepIndex++;
-            const op = (choice == "A") ? r.operators[0]  : r.operators[1];
-            picked.o.push(op);
-            updateEquation();
-            }
-        }
-
-        const HOLD = 450; // 450 m/s
-    const COOLDOWN = 350; // 350 m/s
-
-    let lastChoice = null;
-    let stableSince = 0;
-    let coolDownUntil = 0;
-
-    function getAnswer(choice){
-        const now = performance.now();
-        if (choice !== lastChoice) {
-            lastChoice = choice;
-            stableSince = now;
-            return;
-        }
-
-        if ( (now - stableSince) >= HOLD ){
-            stableSince = now + 9999999;
-            pick(choice);
-        }
-    }
-    render();
-
-    </script>
-
-    <script>
-//    const questions = [
-//        {text: "1 + 1 = ?", A: "1", B: "2", C:"3", correct: "B"},
-//        {text: "2 + 3 = ?", A: "5", B: "9", C:"3", correct: "A"},
-//        {text: "2 + 3 = ?", A: "5", B: "9", C:"3", correct: "A"},
-//        {text: "2 + 3 = ?", A: "5", B: "9", C:"3", correct: "A"},
-//        {text: "2 + 3 = ?", A: "5", B: "9", C:"3", correct: "A"},
-//        {text: "2 + 3 = ?", A: "5", B: "9", C:"3", correct: "A"},
-//    ]
-//    let idx = 0;
-//    let locked = false;
-//
-//    const qHeader = document.getElementById('qHeader');
-//    const qText = document.getElementById('qText');
-//    const optA = document.getElementById('optA');
-//    const optB = document.getElementById('optB');
-//    const optC = document.getElementById('optC');
-//    function renderQuestion(){
-//        if (idx >= questions.length){
-//            // User solved all questions
-//        }
-//        const q = questions[idx];
-//        qText.innerText = q.text;
-//        optA.innerText = q.A;
-//        optB.innerText = q.B;
-//        optC.innerText = q.C;
-//        qHeader.innerText = `${idx+1} / ${questions.length}`;
-//    }
-//    renderQuestion();
-
-
-</script>
 <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const result = document.getElementById('result');
+  // ------------ Timer + question flow ------------
+  let qState = null;
+  let startedAt = 0;
+  let timerId = null;
+  let elapsed = 0;
 
-    // mediapipa detects some major points of human body and return it as landmarks
-    function detectRaiseHand(landmarks){
-        const nose = landmarks[0];
-        const leftWrist = landmarks[15];
-        const rightWrist = landmarks[16];
+  const qHeader = document.getElementById('qHeader');
+  const category = document.getElementById('category');
+  const numbersText = document.getElementById('numbersText');
+  const opsText = document.getElementById('opsText');
+  const targetText = document.getElementById('targetText');
+  const timeLeft = document.getElementById('timeLeft');
 
-        const visible = p => (p.visibility ?? 0 ) > 0.5;
+  // ------------ Equation builder elements ------------
+  const exprText = document.getElementById('exprText');
+  const exprValue = document.getElementById('exprValue');
+  const numRow = document.getElementById('numRow');
+  const opRow = document.getElementById('opRow');
+  const btnUndo = document.getElementById('btnUndo');
+  const btnClear = document.getElementById('btnClear');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const hintText = document.getElementById('hintText');
 
-        let leftUp = false;
-        let rightUp = false;
 
-        if (visible(nose) && visible(leftWrist)){
-            leftUp = leftWrist.y < nose.y;
-        }
-        if (visible(nose) && visible(rightWrist)){
-            rightUp = rightWrist.y < nose.y;
-        }
-        return {leftUp, rightUp}
+  let numbers = [];
+  let ops = ["+", "-", "×"];
+  let tokens = [];
+  let mode = "num";
+  let cursor = 0;
+  let lastComputed = null;
+
+  function parseNumbersText(s){
+    return String(s).split(/[^0-9.-]+/).filter(x => x.length).map(Number);
+  }
+
+  function parseOpsText(s){
+    const raw = String(s).replaceAll("*","×");
+    const arr = raw.split(/[^+\-×/%\/\/^]+/).filter(x => x.length);
+    const allowed = new Set(["+", "-", "×", "/", "//", "%", "^"]);
+    const out = arr.filter(x => allowed.has(x));
+    return out.length ? out : ["+", "-", "×"];
+  }
+
+  function renderCards(){
+    numRow.innerHTML = "";
+    opRow.innerHTML = "";
+
+    numbers.forEach((n, i) => {
+      const div = document.createElement("div");
+      div.className = "pick-card";
+      div.dataset.row = "num";
+      div.dataset.idx = String(i);
+      div.textContent = String(n);
+      numRow.appendChild(div);
+    });
+
+    ops.forEach((op, i) => {
+      const div = document.createElement("div");
+      div.className = "pick-card op";
+      div.dataset.row = "op";
+      div.dataset.idx = String(i);
+      div.textContent = op;
+      opRow.appendChild(div);
+    });
+
+    updateActiveCard();
+  }
+
+  function updateActiveCard(){
+    document.querySelectorAll(".pick-card").forEach(el => el.classList.remove("active"));
+    const row = mode === "num" ? numRow : opRow;
+    const cards = [...row.querySelectorAll(".pick-card")];
+    if (!cards.length) return;
+
+    cursor = Math.max(0, Math.min(cursor, cards.length - 1));
+    cards[cursor]?.classList.add("active");
+  }
+
+  function setMode(nextMode){
+    mode = nextMode;
+    cursor = 0;
+    updateActiveCard();
+  }
+
+  function toggleRow(){
+    mode = (mode === "num") ? "op" : "num";
+    cursor = 0;
+    updateActiveCard();
+  }
+
+  function prettyExpr(){
+    if (!tokens.length) return "—";
+    return tokens.map(t => t.value).join(" ");
+  }
+
+  function safeEvalLeftToRight(){
+    if (!tokens.length) return null;
+    if (tokens[0].type !== "num") return null;
+    if (tokens.length % 2 === 0) return null;
+
+    let acc = Number(tokens[0].value);
+    if (!Number.isFinite(acc)) return null;
+
+    for (let i = 1; i < tokens.length; i += 2){
+      const op = tokens[i]?.value;
+      const b = Number(tokens[i+1]?.value);
+      if (!Number.isFinite(b)) return null;
+
+      if (op === "+") acc = acc + b;
+      else if (op === "-") acc = acc - b;
+      else if (op === "×") acc = acc * b;
+      else return null;
+    }
+    return acc;
+  }
+
+  function refreshBuilder(){
+    exprText.textContent = prettyExpr();
+    const v = safeEvalLeftToRight();
+    lastComputed = v;
+    exprValue.textContent = (v === null ? "—" : String(v));
+
+    if (!tokens.length){
+      hintText.textContent = "Start by selecting a number.";
+    } else if (tokens[tokens.length - 1].type === "op"){
+      hintText.textContent = "Select a number to continue.";
+    } else {
+      hintText.textContent = "Select an operator to continue, or press Submit.";
+    }
+  }
+
+
+  function trySelectActive(){
+    const row = mode === "num" ? numRow : opRow;
+    const cards = [...row.querySelectorAll(".pick-card")];
+    const active = cards[cursor];
+    if (!active) return;
+
+    if (mode === "num"){
+      if (tokens.length && tokens[tokens.length - 1].type === "num") return;
+      const idx = Number(active.dataset.idx);
+      tokens.push({type:"num", value:String(numbers[idx])});
+      setMode("op");
+      renderCards();
+      refreshBuilder();
+    } else {
+      if (!tokens.length) return;
+      if (tokens[tokens.length - 1].type === "op") return;
+      const op = active.textContent.trim();
+      tokens.push({type:"op", value:op});
+      setMode("num");
+      renderCards();
+      refreshBuilder();
+    }
+  }
+
+
+  function moveRight(){
+    const row = mode === "num" ? numRow : opRow;
+    const cards = [...row.querySelectorAll(".pick-card")];
+    if (!cards.length) return;
+
+    const lastIdx = cards.length - 1;
+
+    if (cursor >= lastIdx){
+      if (mode === "num"){
+        setMode("op");
+        updateActiveCard();
+        return;
+      }
+      cursor = 0;
+      updateActiveCard();
+      return;
     }
 
-    // Setting Model
-    const pose = new Pose({
-        locateFile: file =>
-                `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    cursor = cursor + 1;
+    updateActiveCard();
+  }
+
+
+  function moveDown(){
+    toggleRow();
+  }
+
+  btnUndo.addEventListener("click", () => {
+    if (!tokens.length) return;
+    tokens.pop();
+
+    if (!tokens.length) setMode("num");
+    else setMode(tokens[tokens.length - 1].type === "num" ? "op" : "num");
+
+    renderCards();
+    refreshBuilder();
+  });
+
+  btnClear.addEventListener("click", () => {
+    tokens = [];
+    setMode("num");
+    renderCards();
+    refreshBuilder();
+  });
+
+  btnSubmit.addEventListener("click", () => {
+    submitAnswer("MANUAL");
+  });
+
+
+  function startTimerIncreasing(){
+    if (timerId) clearInterval(timerId);
+    startedAt = performance.now();
+    elapsed = 0;
+    timeLeft.innerText = "0";
+
+    timerId = setInterval(() => {
+      elapsed = Math.floor((performance.now() - startedAt) / 1000);
+      timeLeft.innerText = String(elapsed);
+    }, 200);
+  }
+
+  async function loadNext(){
+    hintText.textContent = "";
+
+    const res = await fetch("/api/taskA/next");
+    qState = await res.json();
+
+    if (qState.done){
+      document.body.innerHTML = "<div class='container py-5'><h3>Done.</h3></div>";
+      return;
+    }
+
+    qHeader.innerText = `${qState.q_index + 1} / ${qState.total}`;
+    category.innerText = qState.category ?? "-";
+    numbersText.innerText = qState.numbers_text ?? "-";
+    opsText.innerText = qState.ops_text ?? "-";
+    targetText.innerText = qState.target ?? "-";
+
+    numbers = parseNumbersText(qState.numbers_text ?? "");
+    ops = parseOpsText(qState.ops_text ?? "");
+    tokens = [];
+    setMode("num");
+    renderCards();
+    refreshBuilder();
+
+    startTimerIncreasing();
+  }
+
+  async function submitAnswer(chosen){
+    if (btnSubmit.disabled) return;
+    btnSubmit.disabled = true;
+
+    if (timerId) clearInterval(timerId);
+
+    const rt_ms = Math.max(0, Math.round(performance.now() - startedAt));
+    const expr_str = prettyExpr();
+    const result_val = lastComputed;
+
+    await fetch("/api/taskA/submit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        q_index: qState.q_index,
+        chosen,
+        rt_ms,
+        expr: expr_str,
+        result: result_val,
+        target: qState.target,
+        numbers_seen: qState.numbers_text,
+        ops_seen: qState.ops_text
+      })
     });
 
-    pose.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        selfieMode: false,
-        minDetectionConfidence: 0.6,
-        minTrackingConfidence: 0.6
-    });
+    btnSubmit.disabled = false;
+    await loadNext();
+  }
 
-    pose.onResults(results=>{
-        if (!results.poseLandmarks){
-            result.innerText = 'No pose detected';
-            return
-        }
-        const {leftUp, rightUp} = detectRaiseHand(results.poseLandmarks);
-        if (leftUp && rightUp){
-            result.innerText = 'Both hands raised';
-            getAnswer("C"); // both
-        }else if (leftUp ){
-            result.innerText = 'Left hand raised';
-            getAnswer("A"); // left
-        }else if (rightUp){
-            result.innerText = 'Right hand raised';
-            getAnswer("B"); // right
-        }else{
-            result.innerText = 'No hand raised';
-        }
-    });
-    const camera = new Camera(video,{
-        onFrame: async() =>{
-            await pose.send({image: video});
-        },
-        width: 640,
-        height: 480,
-    });
-    camera.start();
+
+  const HOLD = 450;
+  let lastChoice = null;
+  let stableSince = 0;
+
+  function considerChoice(choice){
+    const now = performance.now();
+    if (choice !== lastChoice){
+      lastChoice = choice;
+      stableSince = now;
+      return;
+    }
+    if ((now - stableSince) >= HOLD){
+      stableSince = now + 9999999;
+      if (choice === "RIGHT") moveRight();
+      else if (choice === "DOWN") moveDown();
+      else if (choice === "SELECT") trySelectActive();
+    }
+  }
+
+
+  const video = document.getElementById('video');
+  const poseStatus = document.getElementById('poseStatus');
+
+  function detectRaiseHand(landmarks){
+    const nose = landmarks[0];
+    const leftWrist = landmarks[15];
+    const rightWrist = landmarks[16];
+    const visible = p => (p.visibility ?? 0) > 0.5;
+
+    let leftUp = false, rightUp = false;
+    if (visible(nose) && visible(leftWrist)) leftUp = leftWrist.y < nose.y;
+    if (visible(nose) && visible(rightWrist)) rightUp = rightWrist.y < nose.y;
+    return {leftUp, rightUp};
+  }
+
+  const pose = new Pose({
+    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+  });
+
+  pose.setOptions({
+    modelComplexity: 1,
+    smoothLandmarks: true,
+    selfieMode: false,
+    minDetectionConfidence: 0.6,
+    minTrackingConfidence: 0.6
+  });
+
+  pose.onResults(results => {
+    if (!results.poseLandmarks){
+      poseStatus.innerText = "No pose detected";
+      return;
+    }
+    const {leftUp, rightUp} = detectRaiseHand(results.poseLandmarks);
+
+    if (leftUp && rightUp){
+      poseStatus.innerText = "Select";
+      considerChoice("SELECT");
+    } else if (rightUp){
+      poseStatus.innerText = "Move right";
+      considerChoice("RIGHT");
+    } else if (leftUp){
+      poseStatus.innerText = "Move down";
+      considerChoice("DOWN");
+    } else {
+      poseStatus.innerText = "Ready";
+      lastChoice = null;
+    }
+  });
+
+  const camera = new Camera(video, {
+    onFrame: async () => { await pose.send({image: video}); },
+    width: 640,
+    height: 480
+  });
+
+  camera.start();
+  loadNext();
 </script>
-
 </body>
 </html>
