@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
+</head>
+<body>
+  <div class="container">
+    <form action="/result" method="POST">
+      <div id="q1">
+        <h1>Q1. Question....</h1>
+        <p>1. Start with the number 30</p>
+        <p>2. Repeat until teh number is less than 10:</p>
+        <p>2-1. If the number is a multiple of 10, divide it by 2</p>
+        <p>2-2. otherwise, subtract 7</p>
+        <p>3. What is the final number?</p>
+        <input type="text" name="question1">
+      </div>
+      <div id="q2">
+        <h1>Q2. Question....</h1>
+        <p>1. Start with the number 10.</p>
+        <p>2. Repeat the following steps until the number is 10 or less:</p>
+        <ul>
+          <li>Subtract 3 from the number</li>
+          <li>if the new number is odd, add 1 to it.</li>
+          <li>if the new number is even, do nothing</li>
+        </ul>
+        <p>3. what is the final number?</p>
+        <input type="text" name="question2">
+      </div>
+      <div id="q3">
+        <h1>Q3. Question....</h1>
+        <p>1. Start with the number 10.</p>
+        <p>Find the missing number: (2 ^ 4) + (15 // 2) = (___ * 3) + 1</p>
+        <input type="text" name="question3">
+      </div>
+      <div id="q4">
+        <h1>Q4. Question....</h1>
+        <p>Find the missing number: (100 / (2 * ___)) + (14 % 3) ^ 3 = 13</p>
+        <input type="text" name="question4">
+      </div>
+       <div id="q5">
+        <h1>Q5. Question....</h1>
+        <p>Let the following be the rules for f(N):</p>
+              <ul>
+                <li>If N is 0, the result is 0</li>
+                <li>Otherwise, the result is N%2 + f(N//2)</li>
+              </ul>
+              <p>What is the value of f(13)?</p>
+        <input type="text" name="question5">
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
